@@ -1,11 +1,19 @@
-import React, { Component } from "react";
+import React, { Component, PropTypes } from "react";
 import { connect } from 'react-redux';
 import "./App.css";
 
-import { increment, decrement } from './ducks/counter';
+import { increment, decrement, undo, redo } from './ducks/counter';
 
 export class App extends Component {
 	render() {
+		const {
+			count
+			, decrement
+			, increment
+			, redo
+			, undo
+		} = this.props;
+
 		return (
 			<div className="app">
 				<section className="counter">
@@ -13,40 +21,40 @@ export class App extends Component {
 					<div className="counter__button-wrapper">
 						<button
 							className="counter__button increment-one"
-							onClick={ () => this.props.increment(1) }
+							onClick={ () => increment(1) }
 						>
 							+1
 						</button>
 						<button
 							className="counter__button increment-five"
-							onClick={ () => this.props.increment(5) }
+							onClick={ () => increment(5) }
 						>
 							+5
 						</button>
 						<button
 							className="counter__button decrement-one"
-							onClick={ () => this.props.decrement(1) }
+							onClick={ () => decrement(1) }
 						>
 							-1
 						</button>
 						<button
 							className="counter__button decrement-five"
-							onClick={ () => this.props.decrement(5) }
+							onClick={ () => decrement(5) }
 						>
 							-5
 						</button>
 						<br />
 						<button
 							className="counter__button undo"
-							disabled={ true }
-							onClick={ () => null }
+							disabled={ this.props.previousValues.length === 0 }
+							onClick={ undo }
 						>
 							Undo
 						</button>
 						<button
 							className="counter__button redo"
-							disabled={ true }
-							onClick={ () => null }
+							disabled={ this.props.futureValues.length === 0 }
+							onClick={ redo }
 						>
 							Redo
 						</button>
@@ -61,12 +69,20 @@ export class App extends Component {
 		);
 	}
 }
-
+App.PropTypes = {
+	count: PropTypes.number.isRequired
+	, decrement: PropTypes.func.isRequired
+	, increment: PropTypes.func.isRequired
+	, futureValues: PropTypes.arrayOf( PropTypes.number ).isRequired
+	, previousValues: PropTypes.arrayOf( PropTypes.number ).isRequired
+	, redo: PropTypes.func.isRequired
+	, undo: PropTypes.func.isRequired
+}
 function mapStateToProps( state ) {
 	return state;
 }
 
-const decorator = connect( mapStateToProps, { increment, decrement } );
+const decorator = connect( mapStateToProps, { increment, decrement, undo, redo } );
 const decoratedComponent = decorator( App );
 
 export default decoratedComponent;

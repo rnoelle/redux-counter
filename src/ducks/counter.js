@@ -3,18 +3,44 @@ export const BLACK_DIAMOND = false;
 
 const INCREMENT = "INCREMENT";
 const DECREMENT = "DECREMENT";
+const UNDO = "UNDO";
+const REDO = "REDO";
 
 const initialState = {
-  count: 0
+  count: 0,
+  futureValues: [],
+  previousValues: []
 };
 //reducer is always the default export
 export default function counter( state = initialState, action) {
   switch ( action.type ) {
     case INCREMENT:
-      return Object.assign({}, state, { count: state.count + action.amount });
+      return {
+        count: state.count + action.amount
+        , futureValues: []
+        , previousValues: [...state.previousValues, state.count]
+      };
       break;
     case DECREMENT:
-      return Object.assign({}, state, { count: state.count - action.amount });
+      return {
+        count: state.count - action.amount
+        , futureValues: []
+        , previousValues: [...state.previousValues, state.count]
+      };
+      break;
+    case UNDO:
+      return {
+        count: state.previousValues[state.previousValues.length - 1]
+        , futureValues: [...state.futureValues, state.count]
+        , previousValues: state.previousValues.slice(0, state.previousValues.length - 1)
+      }
+      break;
+    case REDO:
+      return {
+        count: state.futureValues[state.futureValues.length - 1]
+        , futureValues: state.futureValues.slice(0, state.futureValues.length - 1)
+        , previousValues: [...state.previousValues, state.count]
+      }
       break;
     default:
       return state;
@@ -33,5 +59,17 @@ export function decrement( amount ) {
   return {
     type: DECREMENT,
     amount
+  }
+}
+
+export function undo() {
+  return {
+    type: UNDO
+  }
+}
+
+export function redo() {
+  return {
+    type: REDO
   }
 }
